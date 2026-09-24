@@ -62,7 +62,26 @@ jobs:
       - name: Build APK
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./x build
+        run: |
+          # 从 libs.versions.toml 读出 NDK 版本（与上一步 Install NDK 一致）
+          NDK_VERSION=$(grep '^ndk' gradle/libs.versions.toml | head -1 | tr -dc '0-9.')
+          NDK_ROOT="$ANDROID_HOME/ndk/$NDK_VERSION"
+          SYSROOT="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+          CLANG_VER=$(ls "$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/lib/clang" | head -n 1)
+          TC_INC="$NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/$CLANG_VER/include"
+
+          echo "NDK_VERSION=$NDK_VERSION"
+          echo "SYSROOT=$SYSROOT"
+          echo "CLANG_VER=$CLANG_VER"
+          echo "TC_INC=$TC_INC"
+
+          # 让 bindgen 用 NDK 的头文件，而不是宿主机 /usr/include
+          ARGS="--sysroot=$SYSROOT -I$SYSROOT/usr/include -I$SYSROOT/usr/include/aarch64-linux-android -I$TC_INC"
+          export BINDGEN_EXTRA_CLANG_ARGS_aarch64_linux_android="$ARGS"
+          export BINDGEN_EXTRA_CLANG_ARGS_aarch64_linux_androideabi="$ARGS"
+          export BINDGEN_EXTRA_CLANG_ARGS="$ARGS"
+
+          ./x build
 
       - name: Collect APKs
         run: |
