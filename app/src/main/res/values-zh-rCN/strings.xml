@@ -3897,4 +3897,8 @@
     <string name="feature_show_friend_add_time_description">在联系人详情头部显示好友添加时间</string>
     <string name="feature_we_contact_header_api_name">联系人详情头部扩展</string>
     <string name="contacts_add_time_value">添加时间: %1$s</string>
+    <string name="feature_at_highlight_name">艾特高亮</string>
+    <string name="feature_at_highlight_desc">为群聊气泡正文中的 @ 片段着色</string>
+    <string name="feature_at_highlight_light">亮色</string>
+    <string name="feature_at_highlight_dark">暗色</string>
 </resources>
