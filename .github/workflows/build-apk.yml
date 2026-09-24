@@ -81,7 +81,7 @@ jobs:
           export BINDGEN_EXTRA_CLANG_ARGS_aarch64_linux_androideabi="$ARGS"
           export BINDGEN_EXTRA_CLANG_ARGS="$ARGS"
 
-          ./x build
+          ./x build --flavor legacy
 
       - name: Collect APKs
         run: |
