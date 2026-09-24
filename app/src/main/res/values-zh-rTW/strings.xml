@@ -3879,4 +3879,8 @@
     <string name="feature_show_friend_add_time_description">在聯絡人詳情頂部顯示好友新增時間</string>
     <string name="feature_we_contact_header_api_name">聯絡人詳情頂部擴充</string>
     <string name="contacts_add_time_value">新增時間: %1$s</string>
+    <string name="feature_at_highlight_name">標註高亮</string>
+    <string name="feature_at_highlight_desc">為群組聊天氣泡內文的 @ 片段上色</string>
+    <string name="feature_at_highlight_light">亮色</string>
+    <string name="feature_at_highlight_dark">暗色</string>
 </resources>
