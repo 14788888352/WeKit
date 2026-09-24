@@ -3869,4 +3869,8 @@
     <string name="feature_show_friend_add_time_description">Display when a friend was added in the contact profile header</string>
     <string name="feature_we_contact_header_api_name">Contact profile header extensions</string>
     <string name="contacts_add_time_value">Added: %1$s</string>
+    <string name="feature_at_highlight_name">Highlight @mentions</string>
+    <string name="feature_at_highlight_desc">Colorize @mentions in group chat message bubbles</string>
+    <string name="feature_at_highlight_light">Light</string>
+    <string name="feature_at_highlight_dark">Dark</string>
 </resources>
