@@ -1,0 +1,80 @@
+name: Build WeKit APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew ./x
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: aarch64-linux-android
+
+      - name: Install Android NDK
+        run: |
+          NDK_VERSION=$(grep '^ndk' gradle/libs.versions.toml | head -1 | tr -dc '0-9.')
+          MIN_SDK=$(grep '^minSdk' gradle/libs.versions.toml | head -1 | tr -dc '0-9')
+          echo "NDK=$NDK_VERSION minSdk=$MIN_SDK"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION" > /dev/null
+          NDK_BIN="$ANDROID_HOME/ndk/$NDK_VERSION/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          test -x "$NDK_BIN/llvm-strip"
+          echo "NDK OK"
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Build APK
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./x build
+
+      - name: Collect APKs
+        run: |
+          mkdir -p dist/apk
+          find app/build/outputs/apk -name '*.apk' -type f -exec cp {} dist/apk/ \;
+          echo '--- collected ---'
+          ls -lh dist/apk/
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: wekit-apk
+          path: dist/apk/*.apk
+          if-no-files-found: error
+          retention-days: 30
